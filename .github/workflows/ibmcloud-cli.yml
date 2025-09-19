@@ -1,0 +1,32 @@
+name: IBM Cloud CLI Test
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test-ibmcloud-cli:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install IBM Cloud CLI (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh || \
+        curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+
+    - name: Install IBM Cloud CLI (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        Invoke-WebRequest -Uri https://clis.cloud.ibm.com/install/win -OutFile ibmcloud_installer.exe
+        Start-Process .\ibmcloud_installer.exe -Wait
+
+    - name: Run ibmcloud dev -h
+      run: ibmcloud dev -h
