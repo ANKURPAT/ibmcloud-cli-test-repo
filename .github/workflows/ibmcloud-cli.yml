@@ -25,7 +25,12 @@ jobs:
     - name: Install IBM Cloud CLI (Windows)
       if: runner.os == 'Windows'
       run: |
-        iex (New-Object Net.WebClient).DownloadString('https://clis.cloud.ibm.com/install/powershell')
+        set VERSION=v2.30.0
+        set URL=https://github.com/IBM-Cloud/ibm-cloud-cli-release/releases/download/%VERSION%/ibmcloud-windows-amd64.exe
+        set TARGET=%TEMP%\ibmcloud.exe
+        curl -L -o %TARGET% %URL%
+        %TEMP%\ibmcloud.exe --version
+
 
     - name: Run ibmcloud dev -h
       run: ibmcloud dev -h
