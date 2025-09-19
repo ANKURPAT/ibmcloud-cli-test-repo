@@ -28,15 +28,14 @@ jobs:
           curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
         fi
 
-    - name: Install IBM Cloud CLI (Windows via ZIP)
+    - name: Install IBM Cloud CLI (Windows via EXE)
       if: runner.os == 'Windows'
       run: |
-        $url = "https://github.com/IBM-Cloud/ibm-cloud-cli-release/releases/download/v2.36.0/IBM_Cloud_CLI_2.36.0_windows_amd64.zip"
-        $zipPath = "$env:TEMP\\ibmcloud.zip"
-        $extractPath = "$env:TEMP\\ibmcloud"
-        Invoke-WebRequest -Uri $url -OutFile $zipPath
-        Expand-Archive -Path $zipPath -DestinationPath $extractPath
-        echo "$extractPath\\bin" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+        $version = "${{ env.IBM_CLOUD_CLI_VERSION }}"
+        $url = "https://download.clis.cloud.ibm.com/ibm-cloud-cli/$version/IBM_Cloud_CLI_${version}_amd64.exe"
+        $target = "$env:TEMP\\ibmcloud_installer.exe"
+        Invoke-WebRequest -Uri $url -OutFile $target
+        Start-Process -FilePath $target -ArgumentList "/quiet" -Wait
 
     - name: Verify IBM Cloud CLI Installation
       run: ibmcloud --version
