@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  IBM_CLOUD_CLI_VERSION: 2.30.0
+  IBM_CLOUD_CLI_VERSION: 2.36.0
 
 jobs:
   test-ibmcloud-cli:
@@ -28,19 +28,15 @@ jobs:
           curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
         fi
 
-    - name: Install IBM Cloud CLI (Windows)
+    - name: Install IBM Cloud CLI (Windows via ZIP)
       if: runner.os == 'Windows'
       run: |
-        $url = "https://download.clis.cloud.ibm.com/ibm-cloud-cli/${{ env.IBM_CLOUD_CLI_VERSION }}/IBM_Cloud_CLI_${{ env.IBM_CLOUD_CLI_VERSION }}_amd64.exe"
-        $target = "$env:TEMP\\ibmcloud.exe"
-        Invoke-WebRequest -Uri $url -OutFile $target
-        Start-Process -FilePath $target -ArgumentList "/quiet" -Wait
-
-    - name: Add IBM Cloud CLI to PATH (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        $ibmPath = "C:\\Program Files\\IBM\\Cloud\\bin"
-        echo "$ibmPath" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+        $url = "https://github.com/IBM-Cloud/ibm-cloud-cli-release/releases/download/v2.36.0/IBM_Cloud_CLI_2.36.0_windows_amd64.zip"
+        $zipPath = "$env:TEMP\\ibmcloud.zip"
+        $extractPath = "$env:TEMP\\ibmcloud"
+        Invoke-WebRequest -Uri $url -OutFile $zipPath
+        Expand-Archive -Path $zipPath -DestinationPath $extractPath
+        echo "$extractPath\\bin" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
 
     - name: Verify IBM Cloud CLI Installation
       run: ibmcloud --version
