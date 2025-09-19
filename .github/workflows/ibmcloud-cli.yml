@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+env:
+  IBM_CLOUD_CLI_VERSION: 2.30.0
+
 jobs:
   test-ibmcloud-cli:
     strategy:
@@ -19,13 +22,16 @@ jobs:
     - name: Install IBM Cloud CLI (Linux/macOS)
       if: runner.os != 'Windows'
       run: |
-        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh || \
-        curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+        fi
 
     - name: Install IBM Cloud CLI (Windows)
       if: runner.os == 'Windows'
       run: |
-        $url = "https://download.clis.cloud.ibm.com/ibm-cloud-cli/2.32.0/IBM_Cloud_CLI_2.32.0_amd64.exe"
+        $url = "https://download.clis.cloud.ibm.com/ibm-cloud-cli/${{ env.IBM_CLOUD_CLI_VERSION }}/IBM_Cloud_CLI_${{ env.IBM_CLOUD_CLI_VERSION }}_amd64.exe"
         $target = "$env:TEMP\\ibmcloud.exe"
         Invoke-WebRequest -Uri $url -OutFile $target
         Start-Process -FilePath $target -ArgumentList "/quiet" -Wait
@@ -36,5 +42,14 @@ jobs:
         $ibmPath = "C:\\Program Files\\IBM\\Cloud\\bin"
         echo "$ibmPath" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
 
+    - name: Verify IBM Cloud CLI Installation
+      run: ibmcloud --version
+
     - name: Run ibmcloud dev -h
-      run: ibmcloud dev -h
+      run: |
+        if command -v ibmcloud; then
+          ibmcloud dev -h
+        else
+          echo "IBM Cloud CLI not found!"
+          exit 1
+        fi
