@@ -25,12 +25,9 @@ jobs:
     - name: Install IBM Cloud CLI (Windows)
       if: runner.os == 'Windows'
       run: |
-        $version = "v2.30.0"
-        $url = "https://github.com/IBM-Cloud/ibm-cloud-cli-release/releases/download/$version/ibmcloud-windows-amd64.exe"
+        $url = "https://github.com/IBM-Cloud/ibm-cloud-cli-release/releases/download/v2.30.0/ibmcloud-windows-amd64.exe"
         $target = "$env:TEMP\\ibmcloud.exe"
         Invoke-WebRequest -Uri $url -OutFile $target
-
-
 
     - name: Run ibmcloud dev -h
       run: ibmcloud dev -h
