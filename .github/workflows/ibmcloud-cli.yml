@@ -28,6 +28,13 @@ jobs:
         $url = "https://download.clis.cloud.ibm.com/ibm-cloud-cli/2.32.0/IBM_Cloud_CLI_2.32.0_amd64.exe"
         $target = "$env:TEMP\\ibmcloud.exe"
         Invoke-WebRequest -Uri $url -OutFile $target
+        Start-Process -FilePath $target -ArgumentList "/quiet" -Wait
+
+    - name: Add IBM Cloud CLI to PATH (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        $ibmPath = "C:\\Program Files\\IBM\\Cloud\\bin"
+        echo "$ibmPath" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
 
     - name: Run ibmcloud dev -h
       run: ibmcloud dev -h
